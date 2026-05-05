@@ -29,7 +29,7 @@ def solve(board):
                 return False
     return True
 
-def count_solutions(board, count):
+def cnt_sol(board, cnt):
     min_poss = 10
     min_r, min_c = -1, -1
     for r in range(9):
@@ -41,14 +41,14 @@ def count_solutions(board, count):
                     min_poss = poss
                     min_r, min_c = r, c
     if min_r == -1:
-        count[0] += 1
+        cnt[0] += 1
         return
     for num in range(1, 10):
         if check(board, min_r, min_c, num):
             board[min_r][min_c] = num
-            count_solutions(board, count)
+            cnt_sol(board, cnt)
             board[min_r][min_c] = 0
-            if count[0] > 1: 
+            if cnt[0] > 1: 
                 return
 
 def gen_board():
@@ -91,7 +91,7 @@ def gen_dif(dif="Easy"):
         board[row][col] = 0
         count = [0]
         board_copy = copy.deepcopy(board)
-        count_solutions(board_copy, count)
+        cnt_sol(board_copy, count)
         if count[0] == 1:
             removed += 1
         else:
