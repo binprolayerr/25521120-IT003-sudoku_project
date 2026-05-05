@@ -24,6 +24,9 @@
 - **`check(board, row, col, num)`**  
   Kiểm tra xem việc đặt số `num` vào vị trí `(row, col)` trên bảng có vi phạm luật Sudoku không.
 
+- **`cnt_sol(board, cnt)`** 
+Thuật toán đếm số lượng nghiệm của một bảng Sudoku. Thuật toán sẽ dừng sớm nếu phát hiện bảng có nhiều hơn 1 nghiệm.
+
 - **`solve(board)`**  
   Giải bảng Sudoku sử dụng thuật toán đệ quy.  
   Hàm này sẽ sửa đổi trực tiếp trên biến `board` được truyền vào.
@@ -36,11 +39,7 @@
   Tạo đề bài Sudoku từ một bảng hoàn chỉnh bằng cách khoét lỗ ngẫu nhiên theo cấp độ khó.
 
 - **`hint(cur)`**  
-  Dùng thuật toán giải ngầm trên một bản sao của bảng hiện tại để tìm ra giá trị đúng cho một ô trống chưa điền.
-
-- **`print_board(board)`**  
-  Định dạng và in bảng Sudoku ra màn hình console để người chơi dễ quan sát,  
-  bao gồm các đường gạch ngang `-` và dọc `|` để phân tách các khối 3x3.
+  Tra cứu trực tiếp đáp án đúng cho một ô trống từ bảng đáp án chuẩn được truyền vào giúp tăng hiệu suất thay vì phải giải đệ quy lại từ đầu.
 
 ## 3. File `main.py`
 
