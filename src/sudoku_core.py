@@ -29,6 +29,28 @@ def solve(board):
                 return False
     return True
 
+def count_solutions(board, count):
+    min_poss = 10
+    min_r, min_c = -1, -1
+    for r in range(9):
+        for c in range(9):
+            if board[r][c] == 0:
+                poss = sum(1 for i in range(1, 10) if check(board, r, c, i))
+                if poss == 0: return
+                if poss < min_poss:
+                    min_poss = poss
+                    min_r, min_c = r, c
+    if min_r == -1:
+        count[0] += 1
+        return
+    for num in range(1, 10):
+        if check(board, min_r, min_c, num):
+            board[min_r][min_c] = num
+            count_solutions(board, count)
+            board[min_r][min_c] = 0
+            if count[0] > 1: 
+                return
+
 def gen_board():
     board = [[0] * 9 for _ in range(9)]
     def fill_board(b):
@@ -50,38 +72,35 @@ def gen_board():
 
 def gen_dif(dif="Easy"):
     board = gen_board()
+    solved_board = copy.deepcopy(board)
     if dif == "Easy":
-        cnt = random.randint(30, 40)
+        cnt = random.randint(30, 35)
     elif dif == "Medium":
-        cnt = random.randint(45, 50)
+        cnt = random.randint(40, 45)
     elif dif == "Hard":
-        cnt = random.randint(55, 60)
+        cnt = random.randint(50, 55)
     else:
-        cnt = random.randint(30, 40)
+        cnt = random.randint(30, 35)
     tmp = [(r, c) for r in range(9) for c in range(9)]
     random.shuffle(tmp)
-    for i in range(cnt):
-        row, col = tmp[i]
-        board[row][col] = 0        
-    return board
+    removed = 0
+    for row, col in tmp:
+        if removed >= cnt:
+            break
+        backup = board[row][col]
+        board[row][col] = 0
+        count = [0]
+        board_copy = copy.deepcopy(board)
+        count_solutions(board_copy, count)
+        if count[0] == 1:
+            removed += 1
+        else:
+            board[row][col] = backup            
+    return board, solved_board
 
-def hint(cur):
-    tmp_board = copy.deepcopy(cur)
-    if solve(tmp_board):
-        for row in range(9):
-            for col in range(9):
-                if cur[row][col] == 0:
-                    return row, col, tmp_board[row][col]
+def hint(cur, solved):
+    empty_cells = [(r, c) for r in range(9) for c in range(9) if cur[r][c] == 0]
+    if empty_cells:
+        r, c = random.choice(empty_cells)
+        return r, c, solved[r][c]
     return None
-
-def print_board(board):
-    for i in range(9):
-        if i % 3 == 0 and i != 0:
-            print("- - - - - - - - - - - - - ")
-        for j in range(9):
-            if j % 3 == 0 and j != 0:
-                print(" | ", end="")
-            if j == 8:
-                print(board[i][j])
-            else:
-                print(str(board[i][j]) + " ", end="")
