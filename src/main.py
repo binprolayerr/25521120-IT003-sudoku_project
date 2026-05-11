@@ -2,7 +2,7 @@ import pygame
 import sys
 import copy
 import time
-from sudoku_core import gen_dif, hint, check
+from sudoku_core import gen_dif, hint
 from stack import create_stack, push, pop, is_empty
 
 pygame.init()
@@ -15,6 +15,7 @@ BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)
 RED = (255, 0, 0)
 GRAY = (200, 200, 200)
+DARK_GRAY = (120, 120, 120)
 LIGHT_BLUE = (173, 216, 230)
 GREEN = (0, 150, 0)
 
@@ -26,12 +27,22 @@ msg_font = pygame.font.SysFont(font_name, 25)
 info_font = pygame.font.SysFont(font_name, 22)
 
 def draw_grid():
+    """
+    Vẽ lưới Sudoku 9x9 lên màn hình.
+    """
     for i in range(10):
         thick = 4 if i % 3 == 0 else 1
         pygame.draw.line(screen, BLACK, (30, 40 + i * 60), (570, 40 + i * 60), thick)
         pygame.draw.line(screen, BLACK, (30 + i * 60, 40), (30 + i * 60, 580), thick)
 
 def draw_board(board, org, selected):
+    """
+    Hiển thị trạng thái hiện tại của bảng Sudoku bao gồm các con số và ô đang được chọn.
+    Args:
+        board (list of list of int): Bảng Sudoku hiện tại.
+        org (list of list of int): Bảng gốc chứa đề bài.
+        selected (tuple or None): Tọa độ của ô đang được chọn. Nếu có ô này sẽ được tô màu nền xanh nhạt.
+    """
     if selected:
         r, c = selected
         pygame.draw.rect(screen, LIGHT_BLUE, (30 + c * 60, 40 + r * 60, 60, 60))
@@ -45,16 +56,36 @@ def draw_board(board, org, selected):
                 screen.blit(text, rect)
 
 def draw_notes(notes, board):
+    """
+    Vẽ các số nháp ở kích thước nhỏ vào các vị trí tương ứng trong những ô còn trống.
+    Args:
+        notes (list of list of set): Lưới 9x9 mỗi phần tử là một tập hợp chứa các số đã được nháp.
+        board (list of list of int): Bảng Sudoku hiện tại.
+    """
     for i in range(9):
         for j in range(9):
             if board[i][j] == 0:
                 for n in notes[i][j]:
                     r = (n - 1) // 3
                     c = (n - 1) % 3
-                    text = note_font.render(str(n), True, GRAY)
+                    text = note_font.render(str(n), True, DARK_GRAY)
                     screen.blit(text, (30 + j * 60 + 8 + c * 20, 40 + i * 60 + 5 + r * 20))
 
 def draw_button(text, x, y, w, h, active=False):
+    """
+    Vẽ một nút bấm có thể tương tác trên màn hình và trả về đối tượng của nó.
+    Args:
+        text (str): Văn bản hiển thị trên nút.
+        x (int): Tọa độ X góc trên bên trái của nút.
+        y (int): Tọa độ Y góc trên bên trái của nút.
+        w (int): Chiều rộng của nút.
+        h (int): Chiều cao của nút.
+        active (bool, optional): Cờ xác định trạng thái nút. 
+                                 Nếu True, nút sẽ có màu xanh nhạt. 
+                                 Mặc định là False (màu xám).
+    Returns:
+        pygame.Rect: Khung chứa nút bấm, dùng để kiểm tra click chuột.
+    """
     color = LIGHT_BLUE if active else GRAY
     pygame.draw.rect(screen, color, (x, y, w, h))
     pygame.draw.rect(screen, BLACK, (x, y, w, h), 2)
@@ -64,10 +95,32 @@ def draw_button(text, x, y, w, h, active=False):
     return pygame.Rect(x, y, w, h)
 
 def main():
+    """
+    Hàm chính điều khiển toàn bộ logic game và vòng lặp sự kiện của Pygame.
+    Bao gồm các thao tác:
+    - Khởi tạo trạng thái trò chơi.
+    - Xử lý các sự kiện từ người dùng.
+    - Quản lý logic thắng/thua.
+    """
     dif_levels = ["Easy", "Medium", "Hard"]
     dif_idx = 0
     
     def init_game():
+        """
+        Khởi tạo lại trạng thái ban đầu của một ván chơi mới dựa trên độ khó hiện tại.
+        Returns:
+                - Bảng chơi hiện tại.
+                - Bảng đáp án.
+                - Bảng đề bài gốc. 
+                - Ngăn xếp undo.
+                - Ngăn xếp redo. 
+                - Notes. 
+                - Thời gian bắt đầu.
+                - Số lỗi.
+                - Cờ kết thúc game. 
+                - Thông báo hệ thống. 
+                - Thời điểm phát thông báo.
+        """
         board, solved = gen_dif(dif_levels[dif_idx])
         return board, solved, copy.deepcopy(board), create_stack(), create_stack(), [[set() for _ in range(9)] for _ in range(9)], time.time(), 0, False, "Game mới bắt đầu!", time.time()
 
